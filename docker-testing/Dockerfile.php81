@@ -1,0 +1,25 @@
+FROM php:8.1-cli
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    libsqlite3-dev \
+    && docker-php-ext-install zip pdo pdo_sqlite
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+# Copy package files
+COPY composer.json composer.lock* ./
+
+# Install dependencies
+RUN composer install --no-interaction --prefer-dist
+
+# Copy source code
+COPY . .
+
+CMD ["vendor/bin/phpunit", "-v"]

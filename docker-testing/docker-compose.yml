@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # PHP 8.1 with Laravel 10
+  php81-laravel10:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php81
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=10.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:10.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.1 with Laravel 11
+  php81-laravel11:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php81
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=11.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.2 with Laravel 10
+  php82-laravel10:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php82
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=10.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:10.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.2 with Laravel 11
+  php82-laravel11:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php82
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=11.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.2 with Laravel 12
+  php82-laravel12:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php82
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=12.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:12.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.3 with Laravel 11
+  php83-laravel11:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php83
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=11.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.3 with Laravel 12
+  php83-laravel12:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php83
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=12.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:12.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.3 with Laravel 13
+  php83-laravel13:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php83
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=13.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:13.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.4 with Laravel 11
+  php84-laravel11:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php84
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=11.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+
+  # PHP 8.4 with Laravel 13
+  php84-laravel13:
+    build:
+      context: ..
+      dockerfile: docker-testing/Dockerfile.php84
+    volumes:
+      - ../:/app
+    environment:
+      - LARAVEL_VERSION=13.0
+    command: ["sh", "-c", "composer require 'illuminate/contracts:13.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
