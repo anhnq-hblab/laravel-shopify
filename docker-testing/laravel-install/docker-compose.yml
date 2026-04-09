@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # Laravel 10 + PHP 8.2
+  laravel10:
+    build:
+      context: ..
+      dockerfile: laravel-install/Dockerfile.laravel10
+    container_name: shopify-laravel10
+    volumes:
+      - ../../:/packages/laravel-shopify
+    networks:
+      - shopify-test
+
+  # Laravel 11 + PHP 8.3
+  laravel11:
+    build:
+      context: ..
+      dockerfile: laravel-install/Dockerfile.laravel11
+    container_name: shopify-laravel11
+    volumes:
+      - ../../:/packages/laravel-shopify
+    networks:
+      - shopify-test
+
+  # Laravel 12 + PHP 8.3
+  laravel12:
+    build:
+      context: ..
+      dockerfile: laravel-install/Dockerfile.laravel12
+    container_name: shopify-laravel12
+    volumes:
+      - ../../:/packages/laravel-shopify
+    networks:
+      - shopify-test
+
+  # Laravel 13 + PHP 8.4
+  laravel13:
+    build:
+      context: ..
+      dockerfile: laravel-install/Dockerfile.laravel13
+    container_name: shopify-laravel13
+    volumes:
+      - ../../:/packages/laravel-shopify
+    networks:
+      - shopify-test
+
+networks:
+  shopify-test:
+    driver: bridge
