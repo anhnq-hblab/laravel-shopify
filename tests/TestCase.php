@@ -9,6 +9,7 @@ use Illuminate\Contracts\Http\Kernel as HttpKernelContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Request as FacadesRequest;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Osiset\ShopifyApp\Contracts\ShopModel;
@@ -102,6 +103,13 @@ abstract class TestCase extends OrchestraTestCase
                 return new ApiStub($opts, new $ts(), new $ls(), new $sd());
             }
         );
+    }
+
+    protected function fakeGraphqlApi(array $fixtures): void
+    {
+        Cache::flush();
+        $this->setApiStub();
+        ApiStub::stubResponses($fixtures);
     }
 
     protected function buildToken(array $values = []): string
