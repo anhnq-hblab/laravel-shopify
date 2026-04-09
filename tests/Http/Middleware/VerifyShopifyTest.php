@@ -129,8 +129,6 @@ class VerifyShopifyTest extends TestCase
 
     public function testTokenProcessingAndLoginShop(): void
     {
-        $this->markTestSkipped('Requires beberlei/assert package - assertion library missing');
-
         // Create a shop that matches the token from buildToken
         factory($this->model)->create(['name' => 'shop-name.myshopify.com']);
 
