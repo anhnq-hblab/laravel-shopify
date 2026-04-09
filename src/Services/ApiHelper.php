@@ -151,6 +151,7 @@ class ApiHelper implements IApiHelper
      */
     public function performOfflineTokenExchange(string $token): ResponseAccess
     {
+        $shop = $this->getShopDomain($this->api->getSession())->toNative();
         $data = [
             'client_id' => $this->api->getOptions()->getApiKey(),
             'client_secret' => $this->api->getOptions()->getApiSecret(),
@@ -159,23 +160,11 @@ class ApiHelper implements IApiHelper
             'subject_token_type' => 'urn:ietf:params:oauth:token-type:id_token',
             'requested_token_type' => 'urn:shopify:params:oauth:token-type:offline-access-token',
         ];
-        $response = $this->api->request(
-            'POST',
-            '/admin/oauth/access_token',
-            [
-                'json' => $data,
-            ]
-        );
-
-        if (isset($response['errors']) && $response['errors'] === true) {
-            throw new ApiException(
-                is_string($response['body']) ? $response['body'] : 'Unknown error',
-                0,
-                $response['exception']
-            );
+        if (Util::getShopifyConfig('expiring_offline_tokens', $shop)) {
+            $data['expiring'] = 1;
         }
 
-        return $response['body'];
+        return $this->oauthAccessTokenPost($data);
     }
 
     /**
@@ -183,9 +172,64 @@ class ApiHelper implements IApiHelper
      *
      * @codeCoverageIgnore No need to retest.
      */
-    public function getAccessData(string $code): ResponseAccess
+    public function getAccessData(string $code, ?AuthMode $grantMode = null): ResponseAccess
     {
+        $grantMode = $grantMode ?? AuthMode::OFFLINE();
+        $shop = $this->getShopDomain($this->api->getSession())->toNative();
+        $useExpiringOffline = Util::getShopifyConfig('expiring_offline_tokens', $shop)
+            && $grantMode->isSame(AuthMode::OFFLINE());
+
+        if ($useExpiringOffline) {
+            return $this->oauthAccessTokenPost([
+                'client_id' => $this->api->getOptions()->getApiKey(),
+                'client_secret' => $this->api->getOptions()->getApiSecret(),
+                'code' => $code,
+                'expiring' => 1,
+            ]);
+        }
+
         return $this->api->requestAccess($code);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function refreshOfflineAccessToken(string $refreshToken): ResponseAccess
+    {
+        return $this->oauthAccessTokenPost([
+            'client_id' => $this->api->getOptions()->getApiKey(),
+            'client_secret' => $this->api->getOptions()->getApiSecret(),
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+        ]);
+    }
+
+    /**
+     * POST /admin/oauth/access_token (JSON body).
+     *
+     * @param array $json
+     *
+     * @return ResponseAccess
+     */
+    protected function oauthAccessTokenPost(array $json): ResponseAccess
+    {
+        $response = $this->api->request(
+            'POST',
+            '/admin/oauth/access_token',
+            [
+                'json' => $json,
+            ]
+        );
+
+        if (isset($response['errors']) && $response['errors'] === true) {
+            throw new ApiException(
+                is_string($response['body']) ? $response['body'] : 'Unknown error',
+                0,
+                $response['exception'] ?? null
+            );
+        }
+
+        return $response['body'];
     }
 
     /**
@@ -282,25 +326,6 @@ class ApiHelper implements IApiHelper
 
     /**
      * {@inheritdoc}
-     * TODO: Convert to GraphQL (merge createChargeGraphQL).
-     */
-    public function createCharge(ChargeType $chargeType, PlanDetailsTransfer $payload): ResponseAccess
-    {
-        // API path
-        $typeString = $this->chargeApiPath($chargeType);
-
-        // Fire the request
-        $response = $this->doRequest(
-            ApiMethod::POST(),
-            "/admin/{$typeString}s.json",
-            [$typeString => $payload->toArray()]
-        );
-
-        return $response['body'][$typeString];
-    }
-
-    /**
-     * {@inheritdoc}
      *
      * @throws Exception
      */
@@ -310,6 +335,7 @@ class ApiHelper implements IApiHelper
         mutation appSubscriptionCreate(
             $name: String!,
             $returnUrl: URL!,
+            $replacementBehavior: AppSubscriptionReplacementBehavior,
             $trialDays: Int,
             $test: Boolean,
             $lineItems: [AppSubscriptionLineItemInput!]!
@@ -317,6 +343,7 @@ class ApiHelper implements IApiHelper
             appSubscriptionCreate(
                 name: $name,
                 returnUrl: $returnUrl,
+                replacementBehavior: $replacementBehavior,
                 trialDays: $trialDays,
                 test: $test,
                 lineItems: $lineItems
@@ -335,6 +362,7 @@ class ApiHelper implements IApiHelper
         $variables = [
             'name' => $payload->name,
             'returnUrl' => $payload->returnUrl,
+            'replacementBehavior' => 'APPLY_IMMEDIATELY',
             'trialDays' => $payload->trialDays,
             'test' => $payload->test,
             'lineItems' => [
@@ -398,12 +426,18 @@ class ApiHelper implements IApiHelper
      */
     public function createWebhook(array $payload): ResponseAccess
     {
+        // Determine if this is an EventBridge webhook (ARN address)
+        $isEventBridge = str_starts_with($payload['address'], 'arn:');
+        $addressType = $isEventBridge ? 'arn' : 'callbackUrl';
+        $mutationName = $isEventBridge ? 'eventBridgeWebhookSubscriptionCreate' : 'webhookSubscriptionCreate';
+        $inputType = $isEventBridge ? 'EventBridgeWebhookSubscriptionInput' : 'WebhookSubscriptionInput';
+
         $query = '
-        mutation webhookSubscriptionCreate(
+        mutation ' . $mutationName . '(
             $topic: WebhookSubscriptionTopic!,
-            $webhookSubscription: WebhookSubscriptionInput!
+            $webhookSubscription: ' . $inputType . '!
         ) {
-            webhookSubscriptionCreate(
+            ' . $mutationName . '(
                 topic: $topic
                 webhookSubscription: $webhookSubscription
             ) {
@@ -425,7 +459,7 @@ class ApiHelper implements IApiHelper
         $variables = [
             'topic' => $topic,
             'webhookSubscription' => [
-                'callbackUrl' => $payload['address'],
+                $addressType => $payload['address'],
                 'format' => 'JSON',
             ],
         ];

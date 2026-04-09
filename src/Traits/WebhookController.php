@@ -42,7 +42,8 @@ trait WebhookController
             $dispatch->onConnection($connection);
         }
 
-        $queue = Util::getShopifyConfig('job_queues')['webhooks'] ?? null;
+        // Check for per-webhook queue configuration first, fall back to global webhook queue
+        $queue = $config[$type]['queue'] ?? Util::getShopifyConfig('job_queues')['webhooks'] ?? null;
         if ($queue) {
             $dispatch->onQueue($queue);
         }

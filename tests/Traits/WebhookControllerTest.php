@@ -143,6 +143,99 @@ class WebhookControllerTest extends TestCase
         });
     }
 
+    public function testHandleDispatchesJobWithCustomQueue(): void
+    {
+        // Fake the queue
+        Queue::fake();
+
+        // Extend Job::class into a custom class
+        $shop = factory($this->model)->create(['name' => 'example.myshopify.com']);
+
+        // Define the custom queue
+        $customQueue = 'custom-webhook-queue';
+
+        // Set up the webhook config with custom queue
+        Config::set('shopify-app.webhooks', [
+            'orders-create-custom-queue' => [
+                'topic' => 'ORDERS_PAID',
+                'address' => 'https://example.com/webhook/orders-create-custom-queue',
+                'class' => OrdersCreateJob::class,
+                'queue' => $customQueue,
+            ],
+        ]);
+
+        // Mock headers that match Shopify
+        $headers = [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_X_SHOPIFY_SHOP_DOMAIN' => $shop->name,
+            'HTTP_X_SHOPIFY_HMAC_SHA256' => 'hvTE9wpDzMcDnPEuHWvYZ58ElKn5vHs0LomurfNIuUc=', // Matches fixture data and API secret
+        ];
+
+        // Create a webhook call and pass in our own headers and data
+        $response = $this->call(
+            'post',
+            '/webhook/orders-create-custom-queue',
+            [],
+            [],
+            [],
+            $headers,
+            file_get_contents(__DIR__.'/../fixtures/webhook.json')
+        );
+
+        // Check it was created and job was pushed
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertStatus(201);
+
+        // Assert the job was pushed with the correct custom queue
+        Queue::assertPushed(OrdersCreateJob::class, function ($job) use ($customQueue) {
+            return $job->queue === $customQueue;
+        });
+    }
+
+    public function testHandleDispatchesJobWithFallbackToGlobalQueue(): void
+    {
+        // Fake the queue
+        Queue::fake();
+
+        // Extend Job::class into a custom class
+        $shop = factory($this->model)->create(['name' => 'example.myshopify.com']);
+
+        // Define the global webhook queue
+        $globalQueue = 'global-webhook-queue';
+
+        // Set up the global queue config
+        Config::set('shopify-app.job_queues', [
+            'webhooks' => $globalQueue,
+        ]);
+
+        // Mock headers that match Shopify
+        $headers = [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_X_SHOPIFY_SHOP_DOMAIN' => $shop->name,
+            'HTTP_X_SHOPIFY_HMAC_SHA256' => 'hvTE9wpDzMcDnPEuHWvYZ58ElKn5vHs0LomurfNIuUc=', // Matches fixture data and API secret
+        ];
+
+        // Create a webhook call and pass in our own headers and data
+        $response = $this->call(
+            'post',
+            '/webhook/orders-create-example',
+            [],
+            [],
+            [],
+            $headers,
+            file_get_contents(__DIR__.'/../fixtures/webhook.json')
+        );
+
+        // Check it was created and job was pushed
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertStatus(201);
+
+        // Assert the job was pushed with the global queue (no per-webhook queue defined)
+        Queue::assertPushed(OrdersCreateJob::class, function ($job) use ($globalQueue) {
+            return $job->queue === $globalQueue;
+        });
+    }
+
     /**
      * Override the default config
      * Allow config change to persist when using $this->call()

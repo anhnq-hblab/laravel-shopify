@@ -1,0 +1,34 @@
+{
+    "data": {
+        "theme": {
+            "files": {
+                "nodes": [
+                    {
+                        "filename": "templates/product.json",
+                        "body": {
+                            "content": "{\"name\":\"Product\",\"sections\":{\"main\":{\"type\":\"product\"}},\"order\":[\"main\"]}"
+                        }
+                    },
+                    {
+                        "filename": "sections/product.liquid",
+                        "body": {
+                            "content": "{% schema %}\n{\n  \"name\": \"Product\",\n  \"tag\": \"section\",\n  \"class\": \"section\",\n  \"blocks\": [\n    {\n      \"type\": \"@app\"\n    }\n  ]\n}\n{% endschema %}"
+                        }
+                    },
+                    {
+                        "filename": "templates/collection.json",
+                        "body": {
+                            "content": "{\"name\":\"Collection\",\"sections\":{\"main\":{\"type\":\"main-collection\"}},\"order\":[\"main\"]}"
+                        }
+                    },
+                    {
+                        "filename": "sections/main-collection.liquid",
+                        "body": {
+                            "content": "{% schema %}\n{\n  \"name\": \"Collection\",\n  \"tag\": \"section\",\n  \"class\": \"section\",\n  \"blocks\": [\n    {\n      \"type\": \"@app\"\n    }\n  ]\n}\n{% endschema %}"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

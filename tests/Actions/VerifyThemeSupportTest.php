@@ -6,8 +6,8 @@ use Osiset\ShopifyApp\Actions\VerifyThemeSupport;
 use Osiset\ShopifyApp\Contracts\Queries\Shop as IShopQuery;
 use Osiset\ShopifyApp\Objects\Enums\ThemeSupportLevel;
 use Osiset\ShopifyApp\Objects\Values\ShopId;
-use Osiset\ShopifyApp\Services\ThemeHelper;
 use Osiset\ShopifyApp\Test\TestCase;
+use Osiset\ShopifyApp\Test\Stubs\ApiStub;
 
 class VerifyThemeSupportTest extends TestCase
 {
@@ -19,6 +19,8 @@ class VerifyThemeSupportTest extends TestCase
     public function testStoreWithUndefinedMainTheme(): void
     {
         $shop = factory($this->model)->create();
+        $this->fakeGraphqlApi(['empty_theme']);
+
         $action = $this->app->make(VerifyThemeSupport::class);
 
         $result = call_user_func(
@@ -33,8 +35,9 @@ class VerifyThemeSupportTest extends TestCase
     public function testStoreWithFullExtensionSupport(): void
     {
         $shop = factory($this->model)->create();
-        $themeHelperStub = $this->createThemeHelperStub(ThemeSupportLevel::FULL);
-        $action = new VerifyThemeSupport($this->app->make(IShopQuery::class), $themeHelperStub);
+        $this->fakeGraphqlApi(['main_theme', 'theme_sections']);
+
+        $action = $this->app->make(VerifyThemeSupport::class);
 
         $result = call_user_func(
             $action,
@@ -48,8 +51,47 @@ class VerifyThemeSupportTest extends TestCase
     public function testStoreWithPartialExtensionSupport(): void
     {
         $shop = factory($this->model)->create();
-        $themeHelperStub = $this->createThemeHelperStub(ThemeSupportLevel::PARTIAL);
-        $action = new VerifyThemeSupport($this->app->make(IShopQuery::class), $themeHelperStub);
+
+        // Create a fixture with only one template having app block support
+        $partialSections = [
+            'data' => [
+                'theme' => [
+                    'files' => [
+                        'nodes' => [
+                            [
+                                'filename' => 'templates/product.json',
+                                'body' => [
+                                    'content' => '{"name":"Product","sections":{"main":{"type":"product"}},"order":["main"]}'
+                                ]
+                            ],
+                            [
+                                'filename' => 'sections/product.liquid',
+                                'body' => [
+                                    'content' => '{% schema %}{"name":"Product","blocks":[{"type":"@app"}]}{% endschema %}'
+                                ]
+                            ],
+                            [
+                                'filename' => 'templates/collection.json',
+                                'body' => [
+                                    'content' => '{"name":"Collection","sections":{"main":{"type":"main-collection"}},"order":["main"]}'
+                                ]
+                            ],
+                            [
+                                'filename' => 'sections/main-collection.liquid',
+                                'body' => [
+                                    'content' => '{% schema %}{"name":"Collection","blocks":[{"type":"text"}]}{% endschema %}'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        ApiStub::stubResponses(['main_theme']);
+        ApiStub::stubResponse(['body' => json_decode(json_encode($partialSections['data']['theme']['files']))]);
+
+        $action = $this->app->make(VerifyThemeSupport::class);
 
         $result = call_user_func(
             $action,
@@ -63,8 +105,35 @@ class VerifyThemeSupportTest extends TestCase
     public function testStoreWithoutExtensionSupport(): void
     {
         $shop = factory($this->model)->create();
-        $themeHelperStub = $this->createThemeHelperStub(ThemeSupportLevel::UNSUPPORTED);
-        $action = new VerifyThemeSupport($this->app->make(IShopQuery::class), $themeHelperStub);
+
+        // Create a fixture with no templates having app block support
+        $noSupportSections = [
+            'data' => [
+                'theme' => [
+                    'files' => [
+                        'nodes' => [
+                            [
+                                'filename' => 'templates/product.json',
+                                'body' => [
+                                    'content' => '{"name":"Product","sections":{"main":{"type":"product"}},"order":["main"]}'
+                                ]
+                            ],
+                            [
+                                'filename' => 'sections/product.liquid',
+                                'body' => [
+                                    'content' => '{% schema %}{"name":"Product","blocks":[{"type":"text"}]}{% endschema %}'
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        ApiStub::stubResponses(['main_theme']);
+        ApiStub::stubResponse(['body' => json_decode(json_encode($noSupportSections['data']['theme']['files']))]);
+
+        $action = $this->app->make(VerifyThemeSupport::class);
 
         $result = call_user_func(
             $action,
@@ -76,31 +145,14 @@ class VerifyThemeSupportTest extends TestCase
     }
 
     /**
-     * Create ThemeHelper stub
+     * Fake GraphQL API responses for testing.
      *
-     * @param int $level
+     * @param array $fixtures Array of fixture names to return sequentially.
      *
-     * @return ThemeHelper
+     * @return void
      */
-    protected function createThemeHelperStub(int $level): ThemeHelper
+    protected function fakeGraphqlApi(array $fixtures): void
     {
-        $themeHelperStub = $this->createStub(ThemeHelper::class);
-
-        $defaultThemeResponse = [];
-
-        if ($level === ThemeSupportLevel::FULL) {
-            $defaultThemeResponse = [0, 1, 2, 3];
-        }
-
-        $themeHelperStub->method('themeIsReady')->willReturn(true);
-        $themeHelperStub->method('templateJSONFiles')->willReturn($defaultThemeResponse);
-        $themeHelperStub->method('mainSections')->willReturn($defaultThemeResponse);
-        $themeHelperStub->method('sectionsWithAppBlock')->willReturn(
-            $level === ThemeSupportLevel::PARTIAL
-            ? array_merge($defaultThemeResponse, [random_int(1, 99)])
-            : $defaultThemeResponse
-        );
-
-        return $themeHelperStub;
+        ApiStub::stubResponses($fixtures);
     }
 }

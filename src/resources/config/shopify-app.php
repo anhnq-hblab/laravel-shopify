@@ -224,6 +224,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Expiring offline access tokens
+    |--------------------------------------------------------------------------
+    |
+    | When true, new offline token exchanges use Shopify's expiring offline
+    | access tokens (refresh_token + rotation). Required for public apps
+    | created on or after April 1, 2026. Existing installs without refresh
+    | metadata continue using the stored access token until re-auth or migration.
+    |
+    | @see https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/offline-access-tokens
+    |
+    */
+
+    'expiring_offline_tokens' => (bool) env('SHOPIFY_EXPIRING_OFFLINE_TOKENS', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Offline access token refresh skew (seconds)
+    |--------------------------------------------------------------------------
+    |
+    | Refresh the offline access token this many seconds before it expires.
+    |
+    */
+
+    'offline_access_token_refresh_skew_seconds' => (int) env('SHOPIFY_OFFLINE_ACCESS_TOKEN_REFRESH_SKEW', 60),
+
+    /*
+    |--------------------------------------------------------------------------
     | Shopify API Redirect
     |--------------------------------------------------------------------------
     |
@@ -391,10 +418,13 @@ return [
     |
     | This option is for defining webhooks.
     | `topic` is the GraphQL value of the Shopify webhook event.
-    | `address` is the endpoint to call.
+    | `address` is the endpoint to call or an AWS EventBridge ARN.
     |
     | Valid values for `topic` can be found here:
     | https://shopify.dev/api/admin/graphql/reference/events/webhooksubscriptiontopic
+    |
+    | For AWS EventBridge support, provide an ARN as the address:
+    | 'address' => 'arn:aws:events:us-east-1::event-source/aws.partner/shopify.com/1234567890/my-event-source'
     |
     */
 
@@ -416,6 +446,15 @@ return [
                 'topic' => env('SHOPIFY_WEBHOOK_3_TOPIC', 'ORDERS_PAID'),
                 'address' => env('SHOPIFY_WEBHOOK_3_ADDRESS', 'https://example.com/webhook/orders-create'),
                 'class' => \App\Shopify\Actions\ExampleAppJob::class
+            ],
+            // You can also configure a custom queue name for individual webhooks
+            // This allows you to split webhooks into separate queues if desired
+            // If not specified, the default 'job_queues.webhooks' queue will be used
+            'orders-paid' => [
+                'topic' => env('SHOPIFY_WEBHOOK_4_TOPIC', 'ORDERS_PAID'),
+                'address' => env('SHOPIFY_WEBHOOK_4_ADDRESS', 'https://example.com/webhook/orders-paid'),
+                'class' => \App\Jobs\OrdersPaidJob::class,
+                'queue' => env('SHOPIFY_WEBHOOK_4_QUEUE', 'webhook-orders'), // Custom queue name
             ],
         */],
 
@@ -492,6 +531,7 @@ return [
         'scripttags' => env('SCRIPTTAGS_JOB_CONNECTION', null),
         'after_authenticate' => env('AFTER_AUTHENTICATE_JOB_CONNECTION', null),
     ],
+
     /*
     |--------------------------------------------------------------------------
     | Config API Callback
@@ -505,9 +545,35 @@ return [
     | The first argument will be the key string.
     | The second argument will be something to help identify the shop.
     |
+    | This will break caching config values because Closures can not be serialized.
+    | Use config_api_class below instead.
+    |
     */
 
     'config_api_callback' => null,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Config API Resolver Class
+    |--------------------------------------------------------------------------
+    |
+    | This option can be used to modify what returns when `getConfig('api_*')`
+    | is used. A use-case for this is modifying the return of `api_secret`
+    | or something similar.
+    |
+    | A class name is required
+    | The class must implement Osiset\ShopifyApp\Contracts\CurrentApiKeyFinderInterface
+    | A default class is provided and can be uncommented below.
+    |
+    | config_api_callback will take priority for backwards-compatibility however,
+    | this option is the recommended way because closures can not be serialized.
+    |
+    */
+
+    // 'config_api_class' => Osiset\ShopifyApp\ApiKeyFinder\CurrentApiKeyFinder::class,
+    // 'config_api_shop_keys' => [
+    //     'api_key_shop-name' => env('API_KEY_SHOPNAME', ''),
+    // ],
 
     /*
     |--------------------------------------------------------------------------

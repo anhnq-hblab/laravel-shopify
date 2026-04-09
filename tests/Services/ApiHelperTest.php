@@ -150,31 +150,6 @@ class ApiHelperTest extends TestCase
         $this->assertSame('Super Mega Plan', $data['name']);
     }
 
-    public function testCreateCharge(): void
-    {
-        // Create a shop
-        $shop = factory($this->model)->create();
-
-        // Response stubbing
-        $this->setApiStub();
-        ApiStub::stubResponses(['post_recurring_application_charges']);
-
-        // Build the details object
-        $transfer = new PlanDetailsTransfer();
-        $transfer->name = 'Test';
-        $transfer->price = 12.00;
-        $transfer->interval = PlanInterval::EVERY_30_DAYS()->toNative();
-        $transfer->test = true;
-        $transfer->trialDays = 7;
-
-        $data = $shop->apiHelper()->createCharge(
-            ChargeType::RECURRING(),
-            $transfer
-        );
-        $this->assertInstanceOf(ResponseAccess::class, $data);
-        $this->assertSame('Basic Plan', $data['name']);
-    }
-
     public function testGetWebhooks(): void
     {
         // Create a shop
@@ -205,6 +180,24 @@ class ApiHelperTest extends TestCase
         ]);
         $this->assertInstanceOf(ResponseAccess::class, $data);
         $this->assertSame('ORDERS_CREATE', $data['data']['webhookSubscriptionCreate']['topic']);
+    }
+
+    public function testCreateWebhookWithEventBridge(): void
+    {
+        // Create a shop
+        /** @var IShopModel $shop */
+        $shop = factory($this->model)->create();
+
+        // Response stubbing
+        $this->setApiStub();
+        ApiStub::stubResponses(['post_webhook', 'eventbridge_webhook_subscription_create']);
+
+        $dataArn = $shop->apiHelper()->createWebhook([
+            'topic' => 'ORDERS_CREATE',
+            'address' => 'arn:aws:events:us-east-1::event-source/aws.partner/shopify.com/client_id_x/EventBridgeSource',
+        ]);
+        $this->assertInstanceOf(ResponseAccess::class, $dataArn);
+        $this->assertSame('ORDERS_CREATE', $dataArn['data']['eventBridgeWebhookSubscriptionCreate']['topic']);
     }
 
     public function testDeleteWebhook(): void
