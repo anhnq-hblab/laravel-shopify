@@ -18,22 +18,32 @@ trait IntegerTrait
     protected $integer;
 
     /**
+     * Constructor.
+     *
+     * @param int $value
+     */
+    public function __construct(int $value)
+    {
+        $this->integer = $value;
+    }
+
+    /**
      * Create a value object from a native integer.
      *
-     * @param int $integer
+     * @param int|string|array|object|null $native
      * @return static
      */
-    public static function fromNative(int $integer): self
+    public static function fromNative(int|string|array|object|null $native): static
     {
-        return new static($integer);
+        return new static((int) $native);
     }
 
     /**
      * Convert the value object to its native integer representation.
      *
-     * @return int
+     * @return int|null
      */
-    public function toNative(): int
+    public function toNative(): mixed
     {
         return $this->integer;
     }
@@ -57,5 +67,15 @@ trait IntegerTrait
     public function __toString(): string
     {
         return (string) $this->toNative();
+    }
+
+    /**
+     * Check if this value object is null.
+     *
+     * @return bool
+     */
+    public function isNull(): bool
+    {
+        return false;
     }
 }

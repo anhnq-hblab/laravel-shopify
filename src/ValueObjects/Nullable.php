@@ -42,10 +42,10 @@ abstract class Nullable implements ValueObject
     /**
      * Create a nullable value object from a native value.
      *
-     * @param mixed $native
+     * @param object|array|string|int|null $native
      * @return static
      */
-    public static function fromNative($native): self
+    public static function fromNative(object|array|string|int|null $native): static
     {
         if ($native === null) {
             $nullClass = static::nullImplementation();
@@ -61,7 +61,7 @@ abstract class Nullable implements ValueObject
      *
      * @return mixed
      */
-    public function toNative()
+    public function toNative(): mixed
     {
         return $this->valueObject->toNative();
     }

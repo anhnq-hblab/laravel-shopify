@@ -11,10 +11,10 @@ trait NullTrait
     /**
      * Create a null value object.
      *
-     * @param null $native
+     * @param int|string|array|object|null $native
      * @return static
      */
-    public static function fromNative($native = null): self
+    public static function fromNative(int|string|array|object|null $native = null): static
     {
         return new static();
     }
@@ -24,7 +24,7 @@ trait NullTrait
      *
      * @return null
      */
-    public function toNative()
+    public function toNative(): mixed
     {
         return null;
     }

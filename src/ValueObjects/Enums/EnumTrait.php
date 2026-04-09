@@ -29,22 +29,22 @@ trait EnumTrait
     }
 
     /**
-     * Create a value object from a native integer.
+     * Create a value object from a native value.
      *
-     * @param int $enum
+     * @param int|string|array|object|null $native
      * @return static
      */
-    public static function fromNative(int $enum): self
+    public static function fromNative(int|string|array|object|null $native): static
     {
-        return new static($enum);
+        return new static((int) $native);
     }
 
     /**
      * Convert the value object to its native integer representation.
      *
-     * @return int
+     * @return int|null
      */
-    public function toNative(): int
+    public function toNative(): mixed
     {
         return $this->enum;
     }

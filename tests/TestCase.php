@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request as FacadesRequest;
-use Orchestra\Database\ConsoleServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Osiset\ShopifyApp\Contracts\ShopModel;
 use Osiset\ShopifyApp\Objects\Values\Hmac;
@@ -22,30 +21,9 @@ use Osiset\ShopifyApp\Util;
 
 abstract class TestCase extends OrchestraTestCase
 {
-    /**
-     * User model.
-     *
-     * @var ShopModel
-     */
     protected $model;
-
-    /**
-     * Token creation defaults.
-     *
-     * @var array
-     */
     protected $tokenDefaults;
-
-    /**
-     * Carbon time.
-     *
-     * @var CarbonImmutable
-     */
     protected $now;
-
-    /*
-     * Fixes the issue with test bench core.
-     * */
     public static $latestResponse = null;
 
     public function setUp(): void
@@ -53,15 +31,10 @@ abstract class TestCase extends OrchestraTestCase
         parent::setUp();
 
         CarbonImmutable::setTestNow($this->now = CarbonImmutable::now());
-
-        // Setup database
         $this->setupDatabase($this->app);
         $this->withFactories(__DIR__.'/../src/resources/database/factories');
-
-        // Assign the user model
         $this->model = $this->app['config']->get('auth.providers.users.model');
 
-        // Token defaults
         $now = Carbon::now()->unix();
         $this->tokenDefaults = [
             'iss' => 'https://shop-name.myshopify.com/admin',
@@ -78,22 +51,18 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function getPackageProviders($app): array
     {
-        // ConsoleServiceProvider required to make migrations work
         return [
             ShopifyAppProvider::class,
-            ConsoleServiceProvider::class,
         ];
     }
 
     protected function resolveApplicationHttpKernel($app): void
     {
-        // For adding custom the shop middleware
         $app->singleton(HttpKernelContract::class, StubKernel::class);
     }
 
     protected function getEnvironmentSetUp($app): void
     {
-        // Use memory SQLite, cleans it self up
         $app['config']->set('database.default', 'sqlite');
         $app['config']->set('database.connections.sqlite', [
             'driver' => 'sqlite',
@@ -106,27 +75,17 @@ abstract class TestCase extends OrchestraTestCase
 
     protected function setupDatabase($app): void
     {
-        // Run Laravel migrations
         $this->loadLaravelMigrations();
-
-        // Run package migration
         $this->artisan('migrate')->run();
     }
 
     protected function swapEnvironment(string $env, Closure $fn): void
     {
-        // Get the current environment
         $currentEnv = App::environment();
-
-        // Set the environment
         App::detectEnvironment(function () use ($env) {
             return $env;
         });
-
-        // Run the closure
         $fn();
-
-        // Reset
         App::detectEnvironment(function () use ($currentEnv) {
             return $currentEnv;
         });
@@ -140,13 +99,7 @@ abstract class TestCase extends OrchestraTestCase
                 $ts = $this->app['config']->get('shopify-app.api_time_store');
                 $ls = $this->app['config']->get('shopify-app.api_limit_store');
                 $sd = $this->app['config']->get('shopify-app.api_deferrer');
-
-                return new ApiStub(
-                    $opts,
-                    new $ts(),
-                    new $ls(),
-                    new $sd()
-                );
+                return new ApiStub($opts, new $ts(), new $ls(), new $sd());
             }
         );
     }
@@ -157,7 +110,6 @@ abstract class TestCase extends OrchestraTestCase
         $payload = sprintf('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.%s', $body);
         $hmac = Util::createHmac(['data' => $payload, 'raw' => true], Util::getShopifyConfig('api_secret'));
         $encodedHmac = Hmac::fromNative(Util::base64UrlEncode($hmac->toNative()));
-
         return sprintf('%s.%s', $payload, $encodedHmac->toNative());
     }
 
@@ -171,7 +123,6 @@ abstract class TestCase extends OrchestraTestCase
                 $cb($request);
             }
         });
-
         return [$called, $response];
     }
 }

@@ -55,7 +55,7 @@ final class MainTheme implements ValueObject
     /**
      * {@inheritDoc}
      */
-    public static function fromNative($native)
+    public static function fromNative(object|array|string|int|null $native): static
     {
         return new static(
             NullableThemeId::fromNative(Arr::get($native, 'id')),
@@ -92,5 +92,17 @@ final class MainTheme implements ValueObject
     public function getRole()
     {
         return $this->role;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toNative(): mixed
+    {
+        return [
+            'id' => $this->id->toNative(),
+            'name' => $this->name->toNative(),
+            'role' => $this->role->toNative(),
+        ];
     }
 }

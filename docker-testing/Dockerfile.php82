@@ -13,13 +13,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# Copy package files
-COPY composer.json composer.lock* ./
+# Copy entrypoint script
+COPY docker-testing/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-# Install dependencies
-RUN composer install --no-interaction --prefer-dist
-
+# Don't copy composer.json here - it will be handled at runtime
 # Copy source code
 COPY . .
 
-CMD ["vendor/bin/phpunit", "-v"]
+ENTRYPOINT ["/entrypoint.sh"]

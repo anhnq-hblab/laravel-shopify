@@ -174,7 +174,7 @@ return [
     |
     */
 
-    'api_version' => env('SHOPIFY_API_VERSION', '2024-04'),
+    'api_version' => env('SHOPIFY_API_VERSION', '2025-01'),
 
     /*
     |--------------------------------------------------------------------------
@@ -400,11 +400,14 @@ return [
 
     'webhooks' => [
         /*
+            // Shopify 2025-01 API Webhook Topics
+            // Full list: https://shopify.dev/docs/api/admin-graphql/2025-01/enums/webhooksubscriptiontopic
             [
                 'topic' => env('SHOPIFY_WEBHOOK_1_TOPIC', 'ORDERS_CREATE'),
                 'address' => env('SHOPIFY_WEBHOOK_1_ADDRESS', 'https://example.com/webhook/orders-create')
             ], [
-                'topic' => env('SHOPIFY_WEBHOOK_2_TOPIC', 'APP_PURCHASES_ONE_TIME_UPDATE'),
+                // Updated topic for 2025-01 API: APP_PURCHASES_ONE_TIME_UPDATE → APP_PURCHASES_ONE_TIME_SUBSCRIPTION_UPDATE
+                'topic' => env('SHOPIFY_WEBHOOK_2_TOPIC', 'APP_PURCHASES_ONE_TIME_SUBSCRIPTION_UPDATE'),
                 'address' => env('SHOPIFY_WEBHOOK_2_ADDRESS', 'https://example.com/webhook/purchase'),
             ]
             // In certain situations you may wish to map the webhook to a specific class

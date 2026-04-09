@@ -18,22 +18,32 @@ trait StringTrait
     protected $string;
 
     /**
+     * Constructor.
+     *
+     * @param string $value
+     */
+    public function __construct(string $value)
+    {
+        $this->string = $value;
+    }
+
+    /**
      * Create a value object from a native string.
      *
-     * @param string $string
+     * @param int|string|array|object|null $native
      * @return static
      */
-    public static function fromNative(string $string): self
+    public static function fromNative(int|string|array|object|null $native): static
     {
-        return new static($string);
+        return new static((string) $native);
     }
 
     /**
      * Convert the value object to its native string representation.
      *
-     * @return string
+     * @return string|null
      */
-    public function toNative(): string
+    public function toNative(): mixed
     {
         return $this->string;
     }
@@ -67,5 +77,15 @@ trait StringTrait
     public function isEmpty(): bool
     {
         return $this->toNative() === '';
+    }
+
+    /**
+     * Check if this value object is null.
+     *
+     * @return bool
+     */
+    public function isNull(): bool
+    {
+        return false;
     }
 }

@@ -90,7 +90,7 @@ final class SessionContext implements ValueObject
     /**
      * {@inheritDoc}
      */
-    public static function fromNative($native)
+    public static function fromNative(object|array|string|int|null $native): static
     {
         return new static(
             NullableSessionToken::fromNative(Arr::get($native, 'session_token')),
@@ -131,5 +131,17 @@ final class SessionContext implements ValueObject
         }
 
         return $tokenCheck && $sidCheck && $domainCheck;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function toNative(): mixed
+    {
+        return [
+            'session_token' => $this->sessionToken->toNative(),
+            'session_id' => $this->sessionId->toNative(),
+            'access_token' => $this->accessToken->toNative(),
+        ];
     }
 }

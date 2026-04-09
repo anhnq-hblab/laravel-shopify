@@ -23,33 +23,33 @@ final class ChargeType implements ValueObject
      *
      * @var int
      */
-    public const RECURRING = 1;
+    public const RECURRING = 0;
 
     /**
      * Charge: One-time.
      *
      * @var int
      */
-    public const CHARGE = 2;
+    public const CHARGE = 1;
 
     /**
      * Charge: Alias for onetime.
      *
      * @var int
      */
-    public const ONETIME = 2;
+    public const ONETIME = 1;
 
     /**
      * Charge: Usage.
      *
      * @var int
      */
-    public const USAGE = 3;
+    public const USAGE = 2;
 
     /**
      * Charge: Credit.
      *
      * @var int
      */
-    public const CREDIT = 4;
+    public const CREDIT = 3;
 }

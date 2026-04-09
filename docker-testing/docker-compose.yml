@@ -9,8 +9,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=10.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:10.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=10
 
   # PHP 8.1 with Laravel 11
   php81-laravel11:
@@ -20,8 +19,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=11.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=11
 
   # PHP 8.2 with Laravel 10
   php82-laravel10:
@@ -31,8 +29,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=10.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:10.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=10
 
   # PHP 8.2 with Laravel 11
   php82-laravel11:
@@ -42,8 +39,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=11.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=11
 
   # PHP 8.2 with Laravel 12
   php82-laravel12:
@@ -53,8 +49,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=12.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:12.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=12
 
   # PHP 8.3 with Laravel 11
   php83-laravel11:
@@ -64,8 +59,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=11.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=11
 
   # PHP 8.3 with Laravel 12
   php83-laravel12:
@@ -75,8 +69,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=12.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:12.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=12
 
   # PHP 8.3 with Laravel 13
   php83-laravel13:
@@ -86,8 +79,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=13.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:13.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=13
 
   # PHP 8.4 with Laravel 11
   php84-laravel11:
@@ -97,8 +89,7 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=11.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:11.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=11
 
   # PHP 8.4 with Laravel 13
   php84-laravel13:
@@ -108,5 +99,4 @@ services:
     volumes:
       - ../:/app
     environment:
-      - LARAVEL_VERSION=13.0
-    command: ["sh", "-c", "composer require 'illuminate/contracts:13.0' --no-interaction --no-update && composer update --no-interaction && vendor/bin/phpunit -v"]
+      - LARAVEL_VERSION=13

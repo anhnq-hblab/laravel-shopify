@@ -11,17 +11,17 @@ interface ValueObject
     /**
      * Create a value object from a native value.
      *
-     * @param mixed $native
+     * @param int|string|array|object|null $native
      * @return static
      */
-    public static function fromNative($native);
+    public static function fromNative(int|string|array|object|null $native): static;
 
     /**
      * Convert the value object to its native representation.
      *
      * @return mixed
      */
-    public function toNative();
+    public function toNative(): mixed;
 
     /**
      * Check if this value object is the same as another.
