@@ -2,7 +2,7 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\Scalars\StringTrait;
+use Osiset\ShopifyApp\ValueObjects\Scalars\StringTrait;
 use Osiset\ShopifyApp\Contracts\Objects\Values\AccessToken as AccessTokenValue;
 
 /**

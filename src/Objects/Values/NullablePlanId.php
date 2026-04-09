@@ -2,7 +2,7 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\Nullable;
+use Osiset\ShopifyApp\ValueObjects\Nullable;
 use Osiset\ShopifyApp\Contracts\Objects\Values\PlanId as PlanIdValue;
 
 /**

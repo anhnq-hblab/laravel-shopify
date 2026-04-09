@@ -2,8 +2,8 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\Scalars\StringTrait;
-use Funeralzone\ValueObjects\ValueObject;
+use Osiset\ShopifyApp\ValueObjects\Scalars\StringTrait;
+use Osiset\ShopifyApp\ValueObjects\ValueObject;
 
 /**
  * Value object for HMAC.

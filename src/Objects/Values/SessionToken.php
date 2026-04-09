@@ -4,7 +4,7 @@ namespace Osiset\ShopifyApp\Objects\Values;
 
 use Assert\Assert;
 use Assert\AssertionFailedException;
-use Funeralzone\ValueObjects\Scalars\StringTrait;
+use Osiset\ShopifyApp\ValueObjects\Scalars\StringTrait;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Osiset\ShopifyApp\Contracts\Objects\Values\SessionToken as SessionTokenValue;

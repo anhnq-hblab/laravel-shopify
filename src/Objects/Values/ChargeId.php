@@ -2,8 +2,8 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\Scalars\IntegerTrait;
-use Funeralzone\ValueObjects\ValueObject;
+use Osiset\ShopifyApp\ValueObjects\Scalars\IntegerTrait;
+use Osiset\ShopifyApp\ValueObjects\ValueObject;
 
 /**
  * Value object for charge ID.

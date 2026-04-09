@@ -2,8 +2,8 @@
 
 namespace Osiset\ShopifyApp\Objects\Enums;
 
-use Funeralzone\ValueObjects\Enums\EnumTrait;
-use Funeralzone\ValueObjects\ValueObject;
+use Osiset\ShopifyApp\ValueObjects\Enums\EnumTrait;
+use Osiset\ShopifyApp\ValueObjects\ValueObject;
 
 /**
  * API types for plans.

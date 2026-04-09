@@ -3,7 +3,7 @@
 namespace Osiset\ShopifyApp\Objects\Values;
 
 use Assert\AssertionFailedException;
-use Funeralzone\ValueObjects\Scalars\StringTrait;
+use Osiset\ShopifyApp\ValueObjects\Scalars\StringTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ShopDomain as ShopDomainValue;

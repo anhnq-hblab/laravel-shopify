@@ -2,8 +2,8 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\CompositeTrait;
-use Funeralzone\ValueObjects\ValueObject;
+use Osiset\ShopifyApp\ValueObjects\CompositeTrait;
+use Osiset\ShopifyApp\ValueObjects\ValueObject;
 use Illuminate\Support\Arr;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ThemeId as ThemeIdValue;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ThemeName as ThemeNameValue;

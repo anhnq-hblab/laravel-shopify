@@ -2,7 +2,7 @@
 
 namespace Osiset\ShopifyApp\Objects\Values;
 
-use Funeralzone\ValueObjects\Scalars\IntegerTrait;
+use Osiset\ShopifyApp\ValueObjects\Scalars\IntegerTrait;
 use Osiset\ShopifyApp\Contracts\Objects\Values\ShopId as ShopIdValue;
 
 /**
