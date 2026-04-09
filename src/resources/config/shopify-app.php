@@ -65,6 +65,20 @@ return [
     | This option allows you to override the package's built-in route names.
     | This can help you avoid collisions with your existing route names.
     |
+    | WARNING for Laravel 12.29.0 and later:
+    | As of Laravel PR #56920, Laravel now gives precedence to the FIRST
+    | route registered with the same name. Since package service providers
+    | are typically booted BEFORE the application's RouteServiceProvider,
+    | package routes will be registered first. This means if your application
+    | defines a route with the same name as one of these package routes,
+    | the PACKAGE route will take precedence — your application route
+    | will be ignored.
+    |
+    | To avoid this, you can:
+    | 1. Use manual_routes to disable specific package routes
+    | 2. Override these route_names to use different names
+    | 3. Define your routes before the package boots (not recommended)
+    |
     */
 
     'route_names' => [
